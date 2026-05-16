@@ -71,6 +71,26 @@ export default function AdminPage() {
           <p className="text-blue-700 font-bold text-lg">현재 단계: {session.phase}</p>
         </div>
 
+        <div className="bg-white rounded-xl p-4 shadow space-y-2">
+          <p className="text-sm font-semibold text-gray-700">시나리오 바로가기</p>
+          <div className="grid gap-2">
+            {scenarios.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => updateSession({ current_stage: i, phase: 'intro' })}
+                disabled={loading}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 ${
+                  session.current_stage === i
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                {i + 1}. {s.title}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-3">
           {session.phase === 'intro' && (
             <button
