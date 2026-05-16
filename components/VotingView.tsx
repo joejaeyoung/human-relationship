@@ -34,10 +34,10 @@ export default function VotingView({ scenario, stage }: Props) {
             key={choice}
             onClick={() => handleVote(choice)}
             disabled={voted}
-            className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+            className={`w-full text-left p-4 rounded-lg border-2 transition-all font-medium text-base ${
               voted
-                ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                : 'border-blue-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer'
+                ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                : 'border-blue-400 bg-white text-gray-800 hover:border-blue-600 hover:bg-blue-50 active:bg-blue-100 cursor-pointer shadow-sm'
             }`}
           >
             {choice}
