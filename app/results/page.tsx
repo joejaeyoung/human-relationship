@@ -80,9 +80,9 @@ export default function ResultsPage() {
         <div className="max-w-2xl mx-auto space-y-8">
           <h1 className="text-3xl font-bold text-center">{scenario.title}</h1>
           <ResultsChart data={voteCounts} />
-          <div className="p-6 bg-blue-50 rounded-xl space-y-2">
-            <p className="font-bold text-blue-800 text-lg">{scenario.theory}</p>
-            <p className="text-blue-700 whitespace-pre-line">{scenario.theoryDetail}</p>
+          <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
+            <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
+            <p className="text-blue-900 whitespace-pre-line text-base font-medium">{scenario.theoryDetail}</p>
           </div>
         </div>
       )}
