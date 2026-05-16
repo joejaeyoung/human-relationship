@@ -64,11 +64,11 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold">발표자 콘솔</h1>
 
         <div className="bg-white rounded-xl p-6 space-y-2 shadow">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm font-semibold text-gray-700">
             Stage {session.current_stage + 1} / {scenarios.length}
           </p>
-          <p className="font-bold text-lg">{scenario?.title ?? '발표 종료'}</p>
-          <p className="text-blue-600 font-medium">현재 단계: {session.phase}</p>
+          <p className="font-bold text-xl text-gray-900">{scenario?.title ?? '발표 종료'}</p>
+          <p className="text-blue-700 font-bold text-lg">현재 단계: {session.phase}</p>
         </div>
 
         <div className="grid gap-3">
