@@ -126,7 +126,7 @@ export default function AdminPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow text-sm text-gray-600 space-y-1">
+        <div className="bg-white rounded-xl p-4 shadow text-sm text-gray-900 space-y-1">
           <p>청중 페이지: <span className="font-mono">/</span></p>
           <p>결과 페이지: <span className="font-mono">/results</span></p>
         </div>

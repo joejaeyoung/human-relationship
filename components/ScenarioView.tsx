@@ -3,8 +3,8 @@ import { Scenario } from '@/lib/scenarios'
 export default function ScenarioView({ scenario }: { scenario: Scenario }) {
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800">{scenario.title}</h2>
-      <p className="text-gray-600 whitespace-pre-line leading-relaxed text-lg">
+      <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
+      <p className="text-gray-900 whitespace-pre-line leading-relaxed text-lg">
         {scenario.description}
       </p>
       <div className="mt-6 p-4 bg-blue-50 rounded-lg text-blue-700 text-sm">

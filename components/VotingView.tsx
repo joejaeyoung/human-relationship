@@ -24,8 +24,8 @@ export default function VotingView({ scenario, stage }: Props) {
 
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800">{scenario.title}</h2>
-      <p className="text-gray-600 whitespace-pre-line leading-relaxed">
+      <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
+      <p className="text-gray-900 whitespace-pre-line leading-relaxed">
         {scenario.description}
       </p>
       <div className="space-y-3 mt-6">
@@ -37,7 +37,7 @@ export default function VotingView({ scenario, stage }: Props) {
             className={`w-full text-left p-4 rounded-lg border-2 transition-all font-medium text-base ${
               voted
                 ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                : 'border-blue-400 bg-white text-gray-800 hover:border-blue-600 hover:bg-blue-50 active:bg-blue-100 cursor-pointer shadow-sm'
+                : 'border-blue-400 bg-white text-gray-900 hover:border-blue-600 hover:bg-blue-50 active:bg-blue-100 cursor-pointer shadow-sm'
             }`}
           >
             {choice}

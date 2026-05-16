@@ -32,7 +32,7 @@ export default function AudiencePage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-gray-900">
         연결 중...
       </div>
     )
@@ -43,7 +43,7 @@ export default function AudiencePage() {
   if (!scenario) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-2xl font-bold text-gray-700">발표가 종료되었습니다. 감사합니다!</p>
+        <p className="text-2xl font-bold text-gray-900">발표가 종료되었습니다. 감사합니다!</p>
       </div>
     )
   }
@@ -57,7 +57,7 @@ export default function AudiencePage() {
       {session.phase === 'results' && (
         <div className="max-w-xl mx-auto p-6 text-center space-y-4">
           <h2 className="text-2xl font-bold">{scenario.title}</h2>
-          <p className="text-gray-600">발표자 화면에서 결과를 확인하세요!</p>
+          <p className="text-gray-900">발표자 화면에서 결과를 확인하세요!</p>
         </div>
       )}
     </main>

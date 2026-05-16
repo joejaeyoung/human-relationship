@@ -75,7 +75,7 @@ export default function ResultsPage() {
   return (
     <main className="min-h-screen bg-white p-8">
       {!scenario ? (
-        <p className="text-center text-gray-500">연결 중...</p>
+        <p className="text-center text-gray-900">연결 중...</p>
       ) : (
         <div className="max-w-2xl mx-auto space-y-8">
           <h1 className="text-3xl font-bold text-center">{scenario.title}</h1>
