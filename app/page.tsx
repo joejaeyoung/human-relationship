@@ -10,14 +10,12 @@ export default function AudiencePage() {
   const [session, setSession] = useState<SessionState | null>(null)
 
   useEffect(() => {
-    // 초기 상태 로드
     supabase
       .from('session_state')
       .select('*')
       .single()
       .then(({ data }) => setSession(data))
 
-    // Realtime 구독
     const channel = supabase
       .channel('session')
       .on(
@@ -29,6 +27,12 @@ export default function AudiencePage() {
 
     return () => { supabase.removeChannel(channel) }
   }, [])
+
+  useEffect(() => {
+    if (session?.phase === 'voting') {
+      localStorage.removeItem(`voted_stage_${session.current_stage}`)
+    }
+  }, [session?.phase, session?.current_stage])
 
   if (!session) {
     return (
