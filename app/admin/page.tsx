@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [pw, setPw] = useState('')
   const [session, setSession] = useState<SessionState | null>(null)
   const [loading, setLoading] = useState(false)
+  const [phaseJustChanged, setPhaseJustChanged] = useState(false)
 
   function login() {
     if (pw === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) setAuthed(true)
@@ -28,8 +29,10 @@ export default function AdminPage() {
 
   async function updateSession(patch: Partial<SessionState>) {
     setLoading(true)
+    setPhaseJustChanged(true)
     await supabase.from('session_state').update(patch).eq('id', 1)
     setLoading(false)
+    setTimeout(() => setPhaseJustChanged(false), 1500)
   }
 
   if (!authed) {
@@ -95,7 +98,7 @@ export default function AdminPage() {
           {session.phase === 'intro' && (
             <button
               onClick={() => updateSession({ phase: 'voting' })}
-              disabled={loading}
+              disabled={loading || phaseJustChanged}
               className="w-full bg-green-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
               투표 시작
@@ -104,10 +107,10 @@ export default function AdminPage() {
           {session.phase === 'voting' && (
             <button
               onClick={() => updateSession({ phase: 'results' })}
-              disabled={loading}
+              disabled={loading || phaseJustChanged}
               className="w-full bg-blue-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
-              결과 보기
+              투표 완료
             </button>
           )}
           {session.phase === 'results' && (
@@ -118,7 +121,7 @@ export default function AdminPage() {
                   phase: 'intro',
                 })
               }
-              disabled={loading || isLast}
+              disabled={loading || isLast || phaseJustChanged}
               className="w-full bg-purple-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
               {isLast ? '마지막 시나리오' : '다음 시나리오 →'}
