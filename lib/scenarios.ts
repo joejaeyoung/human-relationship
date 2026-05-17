@@ -4,6 +4,7 @@ export interface Scenario {
   choices: string[]
   theory: string
   theoryDetail: string
+  image?: string
 }
 
 export const scenarios: Scenario[] = [
@@ -16,6 +17,7 @@ export const scenarios: Scenario[] = [
       "B. 오늘은 어렵습니다. 내일 아침 일찍 출근해서 하겠습니다.",
       "C. 왜 이렇게 갑자기요? 미리 말씀해주셨어야죠.",
     ],
+    image: '/images/scenario1.jpg',
     theory: "나-전달법 (I-Message)",
     theoryDetail:
       "나-전달법은 상대방을 비난하지 않고 자신의 감정과 상황을 전달하는 방식입니다.\n예: '오늘 밤은 제가 선약이 있어서 어렵습니다. 내일 아침 일찍 출근해서 완성하겠습니다.'",
