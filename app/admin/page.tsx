@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase, SessionState } from '@/lib/supabase'
-import { scenarios } from '@/lib/scenarios'
+import { scenarios, Scenario } from '@/lib/scenarios'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
@@ -35,6 +35,38 @@ export default function AdminPage() {
     setTimeout(() => setPhaseJustChanged(false), 1500)
   }
 
+  async function endVoting() {
+    if (!session) return
+    const scenario = scenarios[session.current_stage]
+    const choices =
+      session.round === 1
+        ? scenario.firstChoices.map((fc) => fc.text)
+        : getSecondChoices(scenario, session.first_choice_winner!)
+
+    const { data } = await supabase
+      .from('votes')
+      .select('choice')
+      .eq('stage', session.current_stage)
+      .eq('round', session.round)
+
+    const counts = choices.map((c, i) => ({
+      i,
+      count: data?.filter((v) => v.choice === c).length ?? 0,
+    }))
+    const winner = counts.reduce((a, b) => (b.count > a.count ? b : a)).i
+
+    const patch: Partial<SessionState> = { phase: 'results' }
+    if (session.round === 1) patch.first_choice_winner = winner
+    else patch.second_choice_winner = winner
+
+    await updateSession(patch)
+  }
+
+  function getSecondChoices(scenario: Scenario, firstChoiceWinner: number): string[] {
+    const result = scenario.firstChoices[firstChoiceWinner].result
+    return result.kind === 'second' ? result.choices : []
+  }
+
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,6 +92,13 @@ export default function AdminPage() {
 
   const scenario = scenarios[session.current_stage]
   const isLast = session.current_stage >= scenarios.length - 1
+  const fcWinner = session.first_choice_winner
+  const hasSecondRound =
+    fcWinner !== null && scenario?.firstChoices[fcWinner]?.result.kind === 'second'
+  const immediateResult =
+    fcWinner !== null && scenario?.firstChoices[fcWinner]?.result.kind === 'immediate'
+      ? (scenario.firstChoices[fcWinner].result as { kind: 'immediate'; type: string; text: string })
+      : null
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
@@ -69,18 +108,26 @@ export default function AdminPage() {
         <div className="bg-white rounded-xl p-6 space-y-2 shadow">
           <p className="text-sm font-semibold text-gray-700">
             Stage {session.current_stage + 1} / {scenarios.length}
+            {scenario && <span className="ml-2 text-blue-600">· {session.round}차 투표</span>}
           </p>
           <p className="font-bold text-xl text-gray-900">{scenario?.title ?? '발표 종료'}</p>
           <p className="text-blue-700 font-bold text-lg">현재 단계: {session.phase}</p>
         </div>
 
+        {/* 시나리오 바로가기 */}
         <div className="bg-white rounded-xl p-4 shadow space-y-2">
           <p className="text-sm font-semibold text-gray-700">시나리오 바로가기</p>
           <div className="grid gap-2">
             {scenarios.map((s, i) => (
               <button
                 key={i}
-                onClick={() => updateSession({ current_stage: i, phase: 'intro' })}
+                onClick={() => updateSession({
+                  current_stage: i,
+                  phase: 'intro',
+                  round: 1,
+                  first_choice_winner: null,
+                  second_choice_winner: null,
+                })}
                 disabled={loading}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 ${
                   session.current_stage === i
@@ -94,6 +141,7 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* 메인 컨트롤 */}
         <div className="grid gap-3">
           {session.phase === 'intro' && (
             <button
@@ -101,28 +149,70 @@ export default function AdminPage() {
               disabled={loading || phaseJustChanged}
               className="w-full bg-green-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
-              투표 시작
+              {session.round === 1 ? '투표 시작' : '2차 투표 시작'}
             </button>
           )}
+
           {session.phase === 'voting' && (
             <button
-              onClick={() => updateSession({ phase: 'results' })}
+              onClick={endVoting}
               disabled={loading || phaseJustChanged}
               className="w-full bg-blue-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
               투표 완료
             </button>
           )}
-          {session.phase === 'results' && (
+
+          {session.phase === 'results' && session.round === 1 && (
+            <>
+              {immediateResult && (
+                <div className="p-4 bg-red-50 border border-red-300 rounded-xl text-red-800 text-sm whitespace-pre-line">
+                  <p className="font-bold mb-1">Bad End</p>
+                  {immediateResult.text}
+                </div>
+              )}
+              {hasSecondRound && (
+                <button
+                  onClick={() => updateSession({ phase: 'intro', round: 2 })}
+                  disabled={loading || phaseJustChanged}
+                  className="w-full bg-purple-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
+                >
+                  2차 선택지로 →
+                </button>
+              )}
+              {(immediateResult || (!hasSecondRound && fcWinner !== null)) && (
+                <button
+                  onClick={() =>
+                    updateSession({
+                      current_stage: session.current_stage + 1,
+                      phase: 'intro',
+                      round: 1,
+                      first_choice_winner: null,
+                      second_choice_winner: null,
+                    })
+                  }
+                  disabled={loading || isLast || phaseJustChanged}
+                  className="w-full bg-gray-700 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
+                >
+                  {isLast ? '마지막 시나리오' : '다음 시나리오 →'}
+                </button>
+              )}
+            </>
+          )}
+
+          {session.phase === 'results' && session.round === 2 && (
             <button
               onClick={() =>
                 updateSession({
                   current_stage: session.current_stage + 1,
                   phase: 'intro',
+                  round: 1,
+                  first_choice_winner: null,
+                  second_choice_winner: null,
                 })
               }
               disabled={loading || isLast || phaseJustChanged}
-              className="w-full bg-purple-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
+              className="w-full bg-gray-700 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
             >
               {isLast ? '마지막 시나리오' : '다음 시나리오 →'}
             </button>

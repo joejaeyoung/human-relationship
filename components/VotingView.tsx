@@ -7,17 +7,28 @@ import { supabase } from '@/lib/supabase'
 interface Props {
   scenario: Scenario
   stage: number
+  round: number
+  firstChoiceWinner: number | null
 }
 
-export default function VotingView({ scenario, stage }: Props) {
-  const votedKey = `voted_stage_${stage}`
+export default function VotingView({ scenario, stage, round, firstChoiceWinner }: Props) {
+  const votedKey = `voted_stage_${stage}_round_${round}`
   const [voted, setVoted] = useState(() =>
     typeof window !== 'undefined' ? !!localStorage.getItem(votedKey) : false
   )
 
+  const choices: string[] =
+    round === 1
+      ? scenario.firstChoices.map((fc) => fc.text)
+      : (() => {
+          if (firstChoiceWinner === null) return []
+          const result = scenario.firstChoices[firstChoiceWinner].result
+          return result.kind === 'second' ? result.choices : []
+        })()
+
   async function handleVote(choice: string) {
     if (voted) return
-    await supabase.from('votes').insert({ stage, choice })
+    await supabase.from('votes').insert({ stage, round, choice })
     localStorage.setItem(votedKey, '1')
     setVoted(true)
   }
@@ -25,18 +36,15 @@ export default function VotingView({ scenario, stage }: Props) {
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-      {scenario.image && (
+      {round === 1 && scenario.image && (
         <img
           src={scenario.image}
           alt={scenario.title}
           className="w-full rounded-xl object-cover max-h-64"
         />
       )}
-      <p className="text-gray-900 whitespace-pre-line leading-relaxed">
-        {scenario.description}
-      </p>
       <div className="space-y-3 mt-6">
-        {scenario.choices.map((choice) => (
+        {choices.map((choice) => (
           <button
             key={choice}
             onClick={() => handleVote(choice)}

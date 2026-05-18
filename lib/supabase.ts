@@ -11,11 +11,15 @@ export interface SessionState {
   id: number
   current_stage: number
   phase: Phase
+  round: number
+  first_choice_winner: number | null
+  second_choice_winner: number | null
 }
 
 export interface Vote {
   id: string
   stage: number
+  round: number
   choice: string
   created_at: string
 }

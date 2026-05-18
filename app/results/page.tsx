@@ -9,17 +9,27 @@ export default function ResultsPage() {
   const [session, setSession] = useState<SessionState | null>(null)
   const [voteCounts, setVoteCounts] = useState<{ choice: string; count: number }[]>([])
 
-  async function fetchVotes(stage: number, choices: string[]) {
+  async function fetchVotes(stage: number, round: number, choices: string[]) {
     const { data } = await supabase
       .from('votes')
       .select('choice')
       .eq('stage', stage)
+      .eq('round', round)
 
     const counts = choices.map((choice) => ({
       choice,
       count: data?.filter((v) => v.choice === choice).length ?? 0,
     }))
     setVoteCounts(counts)
+  }
+
+  function getChoices(s: SessionState): string[] {
+    const scenario = scenarios[s.current_stage]
+    if (!scenario) return []
+    if (s.round === 1) return scenario.firstChoices.map((fc) => fc.text)
+    if (s.first_choice_winner === null) return []
+    const result = scenario.firstChoices[s.first_choice_winner].result
+    return result.kind === 'second' ? result.choices : []
   }
 
   useEffect(() => {
@@ -30,7 +40,7 @@ export default function ResultsPage() {
       .then(({ data }) => {
         if (data) {
           setSession(data)
-          fetchVotes(data.current_stage, scenarios[data.current_stage]?.choices ?? [])
+          fetchVotes(data.current_stage, data.round, getChoices(data))
         }
       })
 
@@ -42,7 +52,7 @@ export default function ResultsPage() {
         (payload) => {
           const next = payload.new as SessionState
           setSession(next)
-          fetchVotes(next.current_stage, scenarios[next.current_stage]?.choices ?? [])
+          fetchVotes(next.current_stage, next.round, getChoices(next))
         }
       )
       .subscribe()
@@ -55,10 +65,10 @@ export default function ResultsPage() {
         () => {
           supabase
             .from('session_state')
-            .select('current_stage')
+            .select('*')
             .single()
             .then(({ data }) => {
-              if (data) fetchVotes(data.current_stage, scenarios[data.current_stage]?.choices ?? [])
+              if (data) fetchVotes(data.current_stage, data.round, getChoices(data))
             })
         }
       )
@@ -68,9 +78,31 @@ export default function ResultsPage() {
       supabase.removeChannel(sessionChannel)
       supabase.removeChannel(votesChannel)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const scenario = session ? scenarios[session.current_stage] : null
+
+  const outcomeText = (() => {
+    if (!session || !scenario || session.phase !== 'results') return null
+    const { round, first_choice_winner: fcW, second_choice_winner: scW } = session
+    if (round === 1 && fcW !== null) {
+      const result = scenario.firstChoices[fcW].result
+      if (result.kind === 'immediate') return { type: result.type, text: result.text }
+    }
+    if (round === 2 && fcW !== null && scW !== null) {
+      const result = scenario.firstChoices[fcW].result
+      if (result.kind === 'second') return result.outcomes[scW]
+    }
+    return null
+  })()
+
+  const outcomeColors = {
+    best: 'bg-green-50 border-green-400 text-green-900',
+    normal: 'bg-yellow-50 border-yellow-400 text-yellow-900',
+    bad: 'bg-red-50 border-red-400 text-red-900',
+  }
+  const outcomeLabels = { best: '✓ Best End', normal: '→ Normal End', bad: '✗ Bad End' }
 
   return (
     <main className="min-h-screen bg-white p-8">
@@ -79,10 +111,25 @@ export default function ResultsPage() {
       ) : (
         <div className="max-w-2xl mx-auto space-y-8">
           <h1 className="text-3xl font-bold text-center">{scenario.title}</h1>
+          {session && (
+            <p className="text-center text-gray-500 text-sm">
+              {session.round}차 투표 결과
+            </p>
+          )}
           <ResultsChart data={voteCounts} />
+
+          {outcomeText && (
+            <div className={`p-6 rounded-xl border-2 ${outcomeColors[outcomeText.type]}`}>
+              <p className="font-bold text-lg mb-2">{outcomeLabels[outcomeText.type]}</p>
+              <p className="whitespace-pre-line leading-relaxed">{outcomeText.text}</p>
+            </div>
+          )}
+
           <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
             <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
-            <p className="text-blue-900 whitespace-pre-line text-base font-medium">{scenario.theoryDetail}</p>
+            <p className="text-blue-900 whitespace-pre-line text-base font-medium">
+              {scenario.theoryDetail}
+            </p>
           </div>
         </div>
       )}
