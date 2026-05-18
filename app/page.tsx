@@ -52,28 +52,7 @@ export default function AudiencePage() {
     )
   }
 
-  const { phase, round, first_choice_winner, second_choice_winner } = session
-
-  // 최종 결과 텍스트 계산
-  const outcomeText = (() => {
-    if (phase !== 'results') return null
-    if (round === 1 && first_choice_winner !== null) {
-      const result = scenario.firstChoices[first_choice_winner].result
-      if (result.kind === 'immediate') return { type: result.type, text: result.text }
-    }
-    if (round === 2 && first_choice_winner !== null && second_choice_winner !== null) {
-      const result = scenario.firstChoices[first_choice_winner].result
-      if (result.kind === 'second') return result.outcomes[second_choice_winner]
-    }
-    return null
-  })()
-
-  const outcomeColors = {
-    best: 'bg-green-50 border-green-400 text-green-900',
-    normal: 'bg-yellow-50 border-yellow-400 text-yellow-900',
-    bad: 'bg-red-50 border-red-400 text-red-900',
-  }
-  const outcomeLabels = { best: 'Best End', normal: 'Normal End', bad: 'Bad End' }
+  const { phase, round, first_choice_winner } = session
 
   return (
     <main className="min-h-screen bg-gray-50 py-12">
@@ -93,16 +72,8 @@ export default function AudiencePage() {
         />
       )}
       {phase === 'results' && (
-        <div className="max-w-xl mx-auto p-6 text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-          {outcomeText ? (
-            <div className={`p-5 rounded-xl border-2 text-left ${outcomeColors[outcomeText.type]}`}>
-              <p className="font-bold text-sm mb-2">{outcomeLabels[outcomeText.type]}</p>
-              <p className="whitespace-pre-line leading-relaxed">{outcomeText.text}</p>
-            </div>
-          ) : (
-            <p className="text-gray-600">발표자 화면에서 결과를 확인하세요!</p>
-          )}
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-xl font-medium text-gray-600">발표자 화면에서 결과를 확인하세요!</p>
         </div>
       )}
     </main>
