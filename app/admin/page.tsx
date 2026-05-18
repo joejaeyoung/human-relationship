@@ -39,6 +39,10 @@ export default function AdminPage() {
   async function endVoting() {
     if (!session) return
     const scenario = scenarios[session.current_stage]
+    if (session.round === 2 && session.first_choice_winner === null) {
+      alert('1차 투표 결과가 없습니다. 처음부터 다시 진행해주세요.')
+      return
+    }
     const choices =
       session.round === 1
         ? scenario.firstChoices.map((fc) => fc.text)
@@ -64,8 +68,9 @@ export default function AdminPage() {
   }
 
   function getSecondChoices(scenario: Scenario, firstChoiceWinner: number): string[] {
-    const result = scenario.firstChoices[firstChoiceWinner].result
-    return result.kind === 'second' ? result.choices : []
+    const fc = scenario.firstChoices[firstChoiceWinner]
+    if (!fc) return []
+    return fc.result.kind === 'second' ? fc.result.choices : []
   }
 
   if (!authed) {
