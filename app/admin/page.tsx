@@ -30,7 +30,8 @@ export default function AdminPage() {
   async function updateSession(patch: Partial<SessionState>) {
     setLoading(true)
     setPhaseJustChanged(true)
-    await supabase.from('session_state').update(patch).eq('id', 1)
+    const { error } = await supabase.from('session_state').update(patch).eq('id', 1)
+    if (error) alert(`업데이트 실패: ${error.message}`)
     setLoading(false)
     setTimeout(() => setPhaseJustChanged(false), 1500)
   }
