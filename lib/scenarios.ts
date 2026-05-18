@@ -8,6 +8,7 @@ export interface Outcome {
 export interface SecondRound {
   kind: 'second'
   prompt: string
+  image?: string
   choices: string[]
   outcomes: Outcome[]
 }
@@ -20,6 +21,7 @@ export interface ImmediateEnd {
 
 export interface FirstChoice {
   text: string
+  image?: string
   result: SecondRound | ImmediateEnd
 }
 
@@ -45,6 +47,7 @@ export const scenarios: Scenario[] = [
           kind: 'second',
           prompt:
             '상사: "흠... 핵심 파트라도 오늘 받으면 좋겠네요"\n\n(속마음: \'상사가 완전히 거절은 하지 않았다. 지금 확실히 일정 픽스해서 꼭 약속에 나가야지!\')',
+          image: '/images/scenario1_r2.jpg',
           choices: [
             '그렇다면 핵심 파트인 1, 2번 파트 정리해서 오늘 저녁 8시까지 메일 드리겠습니다. 전체 완성본은 내일 보고 1시간 전까지 드릴게요!',
             '네. 그러면 최대한 빠르게 해서 보내드리겠습니다. (시간 약속은 하지 않는다.)',
@@ -99,6 +102,7 @@ export const scenarios: Scenario[] = [
           kind: 'second',
           prompt:
             '동료: "아 미안해요. 그냥 타이밍이 맞아서 제가 빠르게 한 것뿐이에요. 결과적으로는 잘 됐잖아요?"\n\n(속마음: \'결과만 좋으면 된다고 생각하는 건가? 저 태도가 더 문제인데..\')',
+          image: '/images/scenario2_r2a.jpg',
           choices: [
             '결과랑 별개로 담당자를 거치지 않은 건 앞으로 꼭 지켜줬으면 합니다.',
             '(속으로) 말로는 안 되겠네. 팀장님에게 그냥 보고 올려야겠다.',
@@ -121,6 +125,7 @@ export const scenarios: Scenario[] = [
           kind: 'second',
           prompt:
             '동료: "우선 여기가 수정이 되었고요, 클라이언트와는 이렇게 메일을 주고받았습니다."\n\n(속마음: \'생각보다 많이 진행이 되었네.. 방향이 좀 바뀌었잖아.. 이대로 가면 더 복잡해지겠어\')',
+          image: '/images/scenario2_r2b.jpg',
           choices: [
             '내용 중에 제가 조율하던 부분이랑 다른 게 있어서요. 같이 클라이언트에게 연락해서 합의를 봐도 될까요?',
             '(속으로) 이미 너무 많이 바뀌었네.. 그냥 윗선에 보고해야겠다.',
@@ -153,6 +158,7 @@ export const scenarios: Scenario[] = [
         result: {
           kind: 'second',
           prompt: '팀장: "에이 거짓말 하지 말고~ 그래도 딱 한 잔만 마셔~ 내가 주는 건데 거절할 거야??"',
+          image: '/images/scenario3_r2.jpg',
           choices: [
             '팀장님이 직접 따라주시는 거 너무 영광입니다. 마시면 제가 몸이 힘들어져서 끝까지 참여를 못할 것 같아요. 끝까지 옆에 있는다면 너무 좋지 않을까요?',
             '.....네.. (마지못해 술을 받는다)',

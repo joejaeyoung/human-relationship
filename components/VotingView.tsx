@@ -17,14 +17,24 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
     typeof window !== 'undefined' ? !!localStorage.getItem(votedKey) : false
   )
 
+  const secondResult =
+    round === 2 && firstChoiceWinner !== null
+      ? scenario.firstChoices[firstChoiceWinner].result
+      : null
+
   const choices: string[] =
     round === 1
       ? scenario.firstChoices.map((fc) => fc.text)
-      : (() => {
-          if (firstChoiceWinner === null) return []
-          const result = scenario.firstChoices[firstChoiceWinner].result
-          return result.kind === 'second' ? result.choices : []
-        })()
+      : secondResult?.kind === 'second'
+      ? secondResult.choices
+      : []
+
+  const image =
+    round === 1
+      ? scenario.image
+      : secondResult?.kind === 'second'
+      ? secondResult.image
+      : undefined
 
   async function handleVote(choice: string) {
     if (voted) return
@@ -36,9 +46,9 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-      {round === 1 && scenario.image && (
+      {image && (
         <img
-          src={scenario.image}
+          src={image}
           alt={scenario.title}
           className="w-full rounded-xl object-cover max-h-64"
         />

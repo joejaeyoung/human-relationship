@@ -7,16 +7,24 @@ interface Props {
 }
 
 export default function ScenarioView({ scenario, round, firstChoiceWinner }: Props) {
-  const isSecondIntro = round === 2 && firstChoiceWinner !== null
-  const secondResult = isSecondIntro ? scenario.firstChoices[firstChoiceWinner!].result : null
+  const secondResult =
+    round === 2 && firstChoiceWinner !== null
+      ? scenario.firstChoices[firstChoiceWinner].result
+      : null
   const prompt = secondResult?.kind === 'second' ? secondResult.prompt : null
+  const image =
+    round === 1
+      ? scenario.image
+      : secondResult?.kind === 'second'
+      ? secondResult.image
+      : undefined
 
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-      {round === 1 && scenario.image && (
+      {image && (
         <img
-          src={scenario.image}
+          src={image}
           alt={scenario.title}
           className="w-full rounded-xl object-cover max-h-64"
         />
