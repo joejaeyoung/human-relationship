@@ -36,6 +36,21 @@ export default function AdminPage() {
     setTimeout(() => setPhaseJustChanged(false), 1500)
   }
 
+  async function resetAll() {
+    if (!confirm('모든 투표 기록을 삭제하고 처음부터 시작할까요?')) return
+    setLoading(true)
+    await supabase.from('votes').delete().gte('id', '0')
+    const { error } = await supabase.from('session_state').update({
+      current_stage: 0,
+      phase: 'intro',
+      round: 1,
+      first_choice_winner: null,
+      second_choice_winner: null,
+    }).eq('id', 1)
+    if (error) alert(`초기화 실패: ${error.message}`)
+    setLoading(false)
+  }
+
   async function endVoting() {
     if (!session) return
     const scenario = scenarios[session.current_stage]
@@ -229,6 +244,14 @@ export default function AdminPage() {
           <p>청중 페이지: <span className="font-mono">/</span></p>
           <p>결과 페이지: <span className="font-mono">/results</span></p>
         </div>
+
+        <button
+          onClick={resetAll}
+          disabled={loading}
+          className="w-full border-2 border-red-400 text-red-500 py-3 rounded-xl font-bold hover:bg-red-50 disabled:opacity-50 transition-colors"
+        >
+          전체 초기화 (처음부터 시작)
+        </button>
       </div>
     </main>
   )
