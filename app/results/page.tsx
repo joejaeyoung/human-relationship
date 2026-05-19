@@ -94,8 +94,6 @@ export default function ResultsPage() {
   const scenario = session ? scenarios[session.current_stage] : null
   const { round = 1, phase } = session ?? {}
 
-  const isResults = phase === 'results'
-
   return (
     <main className="min-h-screen bg-white p-8">
       {!scenario ? (
@@ -112,17 +110,15 @@ export default function ResultsPage() {
           <ResultsChart data={voteCounts} />
 
           {/* 이론 개요 */}
-          {isResults && (
-            <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
-              <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
-              <p className="text-blue-900 whitespace-pre-line text-sm leading-relaxed">
-                {scenario.theoryDetail}
-              </p>
-            </div>
-          )}
+          <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
+            <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
+            <p className="text-blue-900 whitespace-pre-line text-sm leading-relaxed">
+              {scenario.theoryDetail}
+            </p>
+          </div>
 
           {/* Round 1: 모든 1차 선택지 해설 */}
-          {isResults && round === 1 && (
+          {round === 1 && (
             <div className="space-y-4">
               <p className="font-bold text-gray-900 text-lg border-b border-gray-200 pb-2">선택지별 해설</p>
               {scenario.firstRound.choices.map((c, i) => (
@@ -136,7 +132,7 @@ export default function ResultsPage() {
           )}
 
           {/* Round 2: 모든 엔딩 + 해설 */}
-          {isResults && round === 2 && (
+          {round === 2 && (
             <div className="space-y-4">
               <p className="font-bold text-gray-900 text-lg border-b border-gray-200 pb-2">엔딩 결과</p>
               {scenario.secondRound.choices.map((c, i) => (
