@@ -30,7 +30,7 @@ export default function AdminPage() {
   async function updateSession(patch: Partial<SessionState>) {
     setLoading(true)
     setPhaseJustChanged(true)
-    const { error } = await supabase.from('session_state').update(patch).eq('id', 1)
+    const { error } = await supabase.from('session_state').update(patch).gte('current_stage', 0)
     if (error) alert(`업데이트 실패: ${error.message}`)
     setLoading(false)
     setTimeout(() => setPhaseJustChanged(false), 1500)
@@ -47,7 +47,7 @@ export default function AdminPage() {
       round: 1,
       first_choice_winner: null,
       second_choice_winner: null,
-    }).eq('id', 1)
+    }).gte('current_stage', 0)
     if (sessionError) alert(`초기화 실패: ${sessionError.message}`)
     setLoading(false)
   }
