@@ -9,12 +9,11 @@ export default function ResultsPage() {
   const [session, setSession] = useState<SessionState | null>(null)
   const [voteCounts, setVoteCounts] = useState<{ choice: string; count: number }[]>([])
 
-  async function fetchVotes(stage: number, round: number, choices: string[]) {
+  async function fetchVotes(stage: number, choices: string[]) {
     const { data } = await supabase
       .from('votes')
       .select('choice')
       .eq('stage', stage)
-      .eq('round', round)
 
     const counts = choices.map((choice) => ({
       choice,
@@ -40,7 +39,7 @@ export default function ResultsPage() {
       .then(({ data }) => {
         if (data) {
           setSession(data)
-          fetchVotes(data.current_stage, data.round, getChoices(data))
+          fetchVotes(data.current_stage, getChoices(data))
         }
       })
 
@@ -52,7 +51,7 @@ export default function ResultsPage() {
         (payload) => {
           const next = payload.new as SessionState
           setSession(next)
-          fetchVotes(next.current_stage, next.round, getChoices(next))
+          fetchVotes(next.current_stage, getChoices(next))
         }
       )
       .subscribe()
@@ -68,7 +67,7 @@ export default function ResultsPage() {
             .select('*')
             .single()
             .then(({ data }) => {
-              if (data) fetchVotes(data.current_stage, data.round, getChoices(data))
+              if (data) fetchVotes(data.current_stage, getChoices(data))
             })
         }
       )
