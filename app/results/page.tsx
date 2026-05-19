@@ -27,8 +27,7 @@ export default function ResultsPage() {
     if (!scenario) return []
     if (s.round === 1) return scenario.firstChoices.map((fc) => fc.text)
     if (s.first_choice_winner === null) return []
-    const result = scenario.firstChoices[s.first_choice_winner].result
-    return result.choices
+    return scenario.firstChoices[s.first_choice_winner].result.choices
   }
 
   useEffect(() => {
@@ -94,16 +93,19 @@ export default function ResultsPage() {
   }, [])
 
   const scenario = session ? scenarios[session.current_stage] : null
+  const { round = 1, first_choice_winner: fcW = null, second_choice_winner: scW = null, phase } = session ?? {}
 
-  const outcomeText = (() => {
-    if (!session || !scenario || session.phase !== 'results') return null
-    const { round, first_choice_winner: fcW, second_choice_winner: scW } = session
-    if (round === 2 && fcW !== null && scW !== null) {
-      const result = scenario.firstChoices[fcW].result
-      return result.outcomes[scW] ?? null
-    }
-    return null
-  })()
+  // 1차 결과: 이긴 선택지의 이론 해석
+  const firstChoiceTheory =
+    phase === 'results' && round === 1 && fcW !== null && scenario
+      ? scenario.firstChoices[fcW]?.theory ?? null
+      : null
+
+  // 2차 결과: 스토리 결과 + 이론 해석
+  const outcome =
+    phase === 'results' && round === 2 && fcW !== null && scW !== null && scenario
+      ? scenario.firstChoices[fcW]?.result.outcomes[scW] ?? null
+      : null
 
   const outcomeColors = {
     best: 'bg-green-50 border-green-400 text-green-900',
@@ -123,15 +125,28 @@ export default function ResultsPage() {
               {session.round}차 투표 결과
             </p>
           )}
+
           <ResultsChart data={voteCounts} />
 
-          {outcomeText && (
-            <div className={`p-6 rounded-xl border-2 ${outcomeColors[outcomeText.type]}`}>
-              <p className="font-bold text-lg mb-2">{outcomeLabels[outcomeText.type]}</p>
-              <p className="whitespace-pre-line leading-relaxed">{outcomeText.text}</p>
+          {/* 2차 결과: 스토리 아웃컴 */}
+          {outcome && (
+            <div className={`p-6 rounded-xl border-2 ${outcomeColors[outcome.type]}`}>
+              <p className="font-bold text-lg mb-2">{outcomeLabels[outcome.type]}</p>
+              <p className="whitespace-pre-line leading-relaxed">{outcome.text}</p>
             </div>
           )}
 
+          {/* 1차: 선택지 이론 해석 / 2차: 아웃컴 이론 해석 */}
+          {(firstChoiceTheory || outcome?.theory) && (
+            <div className="p-6 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
+              <p className="font-bold text-amber-900 text-base">🔍 이론적 해석</p>
+              <p className="text-amber-900 whitespace-pre-line text-sm leading-relaxed">
+                {firstChoiceTheory ?? outcome?.theory}
+              </p>
+            </div>
+          )}
+
+          {/* 이론 개요 */}
           <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
             <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
             <p className="text-blue-900 whitespace-pre-line text-base font-medium">
