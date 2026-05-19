@@ -71,6 +71,11 @@ export default function ResultsPage() {
             })
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'votes' },
+        () => setVoteCounts([])
+      )
       .subscribe()
 
     return () => {
