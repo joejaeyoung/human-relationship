@@ -10,29 +10,30 @@ export default function AudiencePage() {
   const [session, setSession] = useState<SessionState | null>(null)
 
   useEffect(() => {
+    function applySession(data: SessionState) {
+      if (data.phase === 'voting') {
+        localStorage.removeItem(`voted_stage_${data.current_stage}_round_${data.round}`)
+      }
+      setSession(data)
+    }
+
     supabase
       .from('session_state')
       .select('*')
       .single()
-      .then(({ data }) => setSession(data))
+      .then(({ data }) => { if (data) applySession(data) })
 
     const channel = supabase
       .channel('session')
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'session_state' },
-        (payload) => setSession(payload.new as SessionState)
+        (payload) => applySession(payload.new as SessionState)
       )
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
   }, [])
-
-  useEffect(() => {
-    if (session?.phase === 'voting') {
-      localStorage.removeItem(`voted_stage_${session.current_stage}_round_${session.round}`)
-    }
-  }, [session?.phase, session?.current_stage, session?.round])
 
   if (!session) {
     return (
