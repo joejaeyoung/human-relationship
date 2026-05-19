@@ -93,23 +93,17 @@ export default function ResultsPage() {
   }, [])
 
   const scenario = session ? scenarios[session.current_stage] : null
-  const { round = 1, first_choice_winner: fcW = null, second_choice_winner: scW = null, phase } = session ?? {}
+  const { round = 1, first_choice_winner: fcW = null, phase } = session ?? {}
 
-  // 1차 결과: 이긴 선택지의 이론 해석
-  const firstChoiceTheory =
-    phase === 'results' && round === 1 && fcW !== null && scenario
-      ? scenario.firstChoices[fcW]?.theory ?? null
-      : null
-
-  // 2차 결과: 스토리 결과 + 이론 해석
-  const outcome =
-    phase === 'results' && round === 2 && fcW !== null && scW !== null && scenario
-      ? scenario.firstChoices[fcW]?.result.outcomes[scW] ?? null
+  const isResults = phase === 'results'
+  const secondRound =
+    isResults && round === 2 && fcW !== null && scenario
+      ? scenario.firstChoices[fcW].result
       : null
 
   const outcomeColors = {
-    best: 'bg-green-50 border-green-400 text-green-900',
-    normal: 'bg-yellow-50 border-yellow-400 text-yellow-900',
+    best: 'border-green-400 bg-green-50 text-green-900',
+    normal: 'border-yellow-400 bg-yellow-50 text-yellow-900',
   }
   const outcomeLabels = { best: '✓ Best End', normal: '→ Normal End' }
 
@@ -128,31 +122,71 @@ export default function ResultsPage() {
 
           <ResultsChart data={voteCounts} />
 
-          {/* 2차 결과: 스토리 아웃컴 */}
-          {outcome && (
-            <div className={`p-6 rounded-xl border-2 ${outcomeColors[outcome.type]}`}>
-              <p className="font-bold text-lg mb-2">{outcomeLabels[outcome.type]}</p>
-              <p className="whitespace-pre-line leading-relaxed">{outcome.text}</p>
-            </div>
-          )}
-
-          {/* 1차: 선택지 이론 해석 / 2차: 아웃컴 이론 해석 */}
-          {(firstChoiceTheory || outcome?.theory) && (
-            <div className="p-6 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
-              <p className="font-bold text-amber-900 text-base">🔍 이론적 해석</p>
-              <p className="text-amber-900 whitespace-pre-line text-sm leading-relaxed">
-                {firstChoiceTheory ?? outcome?.theory}
+          {/* 이론 개요 */}
+          {isResults && (
+            <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
+              <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
+              <p className="text-blue-900 whitespace-pre-line text-sm leading-relaxed">
+                {scenario.theoryDetail}
               </p>
             </div>
           )}
 
-          {/* 이론 개요 */}
-          <div className="p-6 bg-blue-100 rounded-xl space-y-3 border border-blue-200">
-            <p className="font-bold text-blue-900 text-xl">{scenario.theory}</p>
-            <p className="text-blue-900 whitespace-pre-line text-base font-medium">
-              {scenario.theoryDetail}
-            </p>
-          </div>
+          {/* Round 1: 모든 1차 선택지 해설 */}
+          {isResults && round === 1 && (
+            <div className="space-y-4">
+              <p className="font-bold text-gray-900 text-lg border-b border-gray-200 pb-2">
+                선택지별 해설
+              </p>
+              {scenario.firstChoices.map((fc, i) => (
+                <div
+                  key={i}
+                  className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-3"
+                >
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    선택지 {i + 1}
+                  </p>
+                  <p className="text-gray-900 text-sm leading-relaxed font-medium">
+                    {fc.text}
+                  </p>
+                  <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed border-t border-gray-200 pt-3">
+                    {fc.theory}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Round 2: 모든 엔딩 + 해설 */}
+          {isResults && round === 2 && secondRound && (
+            <div className="space-y-4">
+              <p className="font-bold text-gray-900 text-lg border-b border-gray-200 pb-2">
+                엔딩 결과
+              </p>
+              {secondRound.outcomes.map((outcome, i) => (
+                <div
+                  key={i}
+                  className={`p-5 rounded-xl border-2 space-y-3 ${outcomeColors[outcome.type]}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold opacity-60 uppercase tracking-wide">
+                      선택지 {i + 1}
+                    </span>
+                    <span className="font-bold text-sm">{outcomeLabels[outcome.type]}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed opacity-70 italic">
+                    {secondRound.choices[i]}
+                  </p>
+                  <p className="whitespace-pre-line leading-relaxed text-sm font-medium border-t border-current border-opacity-20 pt-3">
+                    {outcome.text}
+                  </p>
+                  <p className="whitespace-pre-line text-sm leading-relaxed border-t border-current border-opacity-20 pt-3 opacity-80">
+                    {outcome.theory}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </main>
