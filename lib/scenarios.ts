@@ -50,7 +50,7 @@ export const scenarios: Scenario[] = [
       ],
     },
     secondRound: {
-      image: '/images/scenario1_r2.jpg',
+      image: '/images/scenario1.jpg',
       description:
         '상사: "흠... 핵심 파트라도 오늘 받으면 좋겠네요"\n\n(속마음: \'상사가 완전히 거절은 하지 않았다. 지금 확실히 일정 픽스해서 꼭 약속에 나가야지!\')',
       choices: [
