@@ -53,7 +53,7 @@ export default function AudiencePage() {
     )
   }
 
-  const { phase, round, first_choice_winner } = session
+  const { phase, round } = session
 
   return (
     <main className="min-h-screen bg-gray-50 py-12">
@@ -61,7 +61,6 @@ export default function AudiencePage() {
         <ScenarioView
           scenario={scenario}
           round={round}
-          firstChoiceWinner={first_choice_winner}
         />
       )}
       {phase === 'voting' && (
@@ -69,7 +68,6 @@ export default function AudiencePage() {
           scenario={scenario}
           stage={session.current_stage}
           round={round}
-          firstChoiceWinner={first_choice_winner}
         />
       )}
       {phase === 'results' && (

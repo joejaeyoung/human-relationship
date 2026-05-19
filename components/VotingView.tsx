@@ -8,41 +8,21 @@ interface Props {
   scenario: Scenario
   stage: number
   round: number
-  firstChoiceWinner: number | null
 }
 
-export default function VotingView({ scenario, stage, round, firstChoiceWinner }: Props) {
+export default function VotingView({ scenario, stage, round }: Props) {
   const votedKey = `voted_stage_${stage}_round_${round}`
   const [voted, setVoted] = useState(() =>
     typeof window !== 'undefined' ? !!localStorage.getItem(votedKey) : false
   )
   const [votedIndex, setVotedIndex] = useState<number | null>(null)
 
-  const secondResult =
-    round === 2 && firstChoiceWinner !== null
-      ? scenario.firstChoices[firstChoiceWinner].result
-      : null
-
-  const choices: string[] =
-    round === 1
-      ? scenario.firstChoices.map((fc) => fc.text)
-      : secondResult?.kind === 'second'
-      ? secondResult.choices
-      : []
-
-  const image =
-    round === 1
-      ? scenario.image
-      : secondResult?.kind === 'second'
-      ? secondResult.image
-      : undefined
+  const currentRound = round === 1 ? scenario.firstRound : scenario.secondRound
+  const choices = currentRound.choices
 
   function getResponseText(): string {
     if (votedIndex === null) return ''
-    if (round === 1) {
-      return scenario.firstChoices[votedIndex]?.result.prompt ?? ''
-    }
-    return secondResult?.outcomes[votedIndex]?.text ?? ''
+    return currentRound.choices[votedIndex]?.responseText ?? ''
   }
 
   async function handleVote(choice: string, index: number) {
@@ -57,9 +37,9 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-      {image && (
+      {scenario.image && (
         <img
-          src={image}
+          src={scenario.image}
           alt={scenario.title}
           className="w-full rounded-xl object-cover max-h-64"
         />
@@ -68,7 +48,7 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
         {choices.map((choice, i) => (
           <button
             key={i}
-            onClick={() => handleVote(choice, i)}
+            onClick={() => handleVote(choice.text, i)}
             disabled={voted}
             className={`w-full text-left p-4 rounded-lg border-2 transition-all font-medium text-base ${
               voted
@@ -76,7 +56,7 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
                 : 'border-blue-400 bg-white text-gray-900 hover:border-blue-600 hover:bg-blue-50 active:bg-blue-100 cursor-pointer shadow-sm'
             }`}
           >
-            {choice}
+            {choice.text}
           </button>
         ))}
       </div>

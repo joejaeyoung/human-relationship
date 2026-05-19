@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase, SessionState } from '@/lib/supabase'
-import { scenarios, Scenario } from '@/lib/scenarios'
+import { scenarios } from '@/lib/scenarios'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
@@ -55,14 +55,11 @@ export default function AdminPage() {
   async function endVoting() {
     if (!session) return
     const scenario = scenarios[session.current_stage]
-    if (session.round === 2 && session.first_choice_winner === null) {
-      alert('1차 투표 결과가 없습니다. 처음부터 다시 진행해주세요.')
-      return
-    }
+
     const choices =
       session.round === 1
-        ? scenario.firstChoices.map((fc) => fc.text)
-        : getSecondChoices(scenario, session.first_choice_winner!)
+        ? scenario.firstRound.choices.map((c) => c.text)
+        : scenario.secondRound.choices.map((c) => c.text)
 
     const { data } = await supabase
       .from('votes')
@@ -81,12 +78,6 @@ export default function AdminPage() {
     else patch.second_choice_winner = winner
 
     await updateSession(patch)
-  }
-
-  function getSecondChoices(scenario: Scenario, firstChoiceWinner: number): string[] {
-    const fc = scenario.firstChoices[firstChoiceWinner]
-    if (!fc) return []
-    return fc.result.kind === 'second' ? fc.result.choices : []
   }
 
   if (!authed) {
@@ -114,7 +105,6 @@ export default function AdminPage() {
 
   const scenario = scenarios[session.current_stage]
   const isLast = session.current_stage >= scenarios.length - 1
-  const fcWinner = session.first_choice_winner
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
@@ -179,7 +169,7 @@ export default function AdminPage() {
             </button>
           )}
 
-          {session.phase === 'results' && session.round === 1 && fcWinner !== null && (
+          {session.phase === 'results' && session.round === 1 && (
             <button
               onClick={() => updateSession({ phase: 'intro', round: 2 })}
               disabled={loading || phaseJustChanged}
