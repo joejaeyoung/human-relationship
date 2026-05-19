@@ -16,6 +16,7 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
   const [voted, setVoted] = useState(() =>
     typeof window !== 'undefined' ? !!localStorage.getItem(votedKey) : false
   )
+  const [votedIndex, setVotedIndex] = useState<number | null>(null)
 
   const secondResult =
     round === 2 && firstChoiceWinner !== null
@@ -36,11 +37,20 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
       ? secondResult.image
       : undefined
 
-  async function handleVote(choice: string) {
+  function getResponseText(): string {
+    if (votedIndex === null) return ''
+    if (round === 1) {
+      return scenario.firstChoices[votedIndex]?.result.prompt ?? ''
+    }
+    return secondResult?.outcomes[votedIndex]?.text ?? ''
+  }
+
+  async function handleVote(choice: string, index: number) {
     if (voted) return
     await supabase.from('votes').insert({ stage, round, choice })
     localStorage.setItem(votedKey, '1')
     setVoted(true)
+    setVotedIndex(index)
   }
 
   return (
@@ -54,10 +64,10 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
         />
       )}
       <div className="space-y-3 mt-6">
-        {choices.map((choice) => (
+        {choices.map((choice, i) => (
           <button
             key={choice}
-            onClick={() => handleVote(choice)}
+            onClick={() => handleVote(choice, i)}
             disabled={voted}
             className={`w-full text-left p-4 rounded-lg border-2 transition-all font-medium text-base ${
               voted
@@ -69,10 +79,12 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
           </button>
         ))}
       </div>
-      {voted && (
-        <p className="text-center text-green-600 font-medium mt-4">
-          투표 완료! 결과를 기다려주세요.
-        </p>
+      {voted && votedIndex !== null && (
+        <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+          <p className="text-gray-900 whitespace-pre-line leading-relaxed text-base">
+            {getResponseText()}
+          </p>
+        </div>
       )}
     </div>
   )
