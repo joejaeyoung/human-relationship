@@ -37,9 +37,9 @@ export default function VotingView({ scenario, stage, round }: Props) {
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
       <h2 className="text-2xl font-bold text-gray-900">{scenario.title}</h2>
-      {scenario.image && (
+      {currentRound.image && (
         <img
-          src={scenario.image}
+          src={currentRound.image}
           alt={scenario.title}
           className="w-full rounded-xl object-cover max-h-64"
         />

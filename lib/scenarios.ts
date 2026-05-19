@@ -6,12 +6,12 @@ export interface Choice {
 
 export interface Round {
   description: string
+  image?: string
   choices: Choice[]
 }
 
 export interface Scenario {
   title: string
-  image?: string
   firstRound: Round
   secondRound: Round
   theory: string
@@ -21,8 +21,8 @@ export interface Scenario {
 export const scenarios: Scenario[] = [
   {
     title: 'Stage 1: 퇴근 직전 상사의 업무 지시',
-    image: '/images/scenario1.jpg',
     firstRound: {
+      image: '/images/scenario1.jpg',
       description:
         '퇴근 준비를 하던 중 상사가 서류를 들고 다가온다.\n\n상사: "김과장 잠깐요. 이 기획안 초안 오늘 퇴근 전까지 뽑아줄 수 있어요? 내일 오전에 임원 보고가 있어서요."\n\n(속마음: \'서류를 보니 최소 두 시간은 걸릴 분량이다. 오늘 저녁에 오래전부터 잡아둔 약속이 있는데...\')',
       choices: [
@@ -50,6 +50,7 @@ export const scenarios: Scenario[] = [
       ],
     },
     secondRound: {
+      image: '/images/scenario1_r2.jpg',
       description:
         '상사: "흠... 핵심 파트라도 오늘 받으면 좋겠네요"\n\n(속마음: \'상사가 완전히 거절은 하지 않았다. 지금 확실히 일정 픽스해서 꼭 약속에 나가야지!\')',
       choices: [
@@ -82,8 +83,8 @@ export const scenarios: Scenario[] = [
   },
   {
     title: 'Stage 2: 동료의 업무 경계 침범',
-    image: '/images/scenario2.jpg',
     firstRound: {
+      image: '/images/scenario2.jpg',
       description:
         '클라이언트에게 온 메일을 확인하다가 이상한 점을 발견했다. 동료 A가 나를 거치지 않고 직접 연락해 업무를 진행한 것이다.\n\n(속마음: \'A씨와 이야기를 했다고? 나는 이 내용을 전혀 들은 적이 없는데.. 내 담당 클라이언트인데 왜 나를 빼고 진행한 걸까. 일부러인지 실수인지도 모르겠네..\')\n\n동료 A: "김과장! 나 어제 ○○클라이언트한테 연락했어요. 급한 것 같아서 제가 먼저 처리했습니다. 제안서 3번 항목도 수정해서 다시 보내줬어요. 클라이언트도 좋다고 하던데요?"\n\n(속마음: \'제안서까지 수정을 했다고? 그건 나랑 먼저 이야기를 했어야지.. 지금 표정보면 또 잘했다고 생각하는 것 같은데...\')',
       choices: [
@@ -92,18 +93,19 @@ export const scenarios: Scenario[] = [
           responseText:
             '동료: "아 미안해요. 그냥 타이밍이 맞아서 제가 빠르게 한 것뿐이에요. 결과적으로는 잘 됐잖아요?"\n\n(속마음: \'결과만 좋으면 된다고 생각하는 건가? 저 태도가 더 문제인데...\')',
           theory:
-            "동료A는 동료에 대한 경쟁의식이 강하고 자신의 성과만 따지는 돌출형 동료로서 조직 내 하위집단 전체가 서로를 감시하고 대립하는 '대립분리형' 혹은 '대립분산형' 조직 문화로 변질되어, 팀원 모두가 심각한 인간관계 스트레스를 겪게 된다.\n\n돌출형 동료 A의 행동에 대해 감정을 배제하고 명확하게 규칙과 권한(담당자)을 짚고 넘어가는 대처이다. 주인공은 조직공정성(절차)을 바로잡으려 하고 있다.",
+            "동료A는 동료에 대한 경쟁의식이 강하고 자신의 성과만 따지는 돌출형 동료로서 조직 내 하위집단 전체가 서로를 감시하고 대립하는 '대립분리형' 혹은 '대립분산형' 조직 문화로 변질되어, 팀원 모두가 심각한 인간관계 스트레스를 겪게 된다.돌출형 동료 A의 행동에 대해 감정을 배제하고 명확하게 규칙과 권한(담당자)을 짚고 넘어가는 대처이다. 주인공은 조직공정성(절차)을 바로잡으려 하고 있다.",
         },
         {
           text: '그래요? 어떤 내용 수정해서 보냈는지 저도 좀 볼 수 있을까요?',
           responseText:
             '동료: "우선 여기가 수정이 되었고요, 클라이언트와는 이렇게 메일을 주고받았습니다."\n\n(속마음: \'생각보다 많이 진행이 되었네.. 방향이 좀 바뀌었잖아.. 이대로 가면 더 복잡해지겠어\')',
           theory:
-            "동료A는 동료에 대한 경쟁의식이 강하고 자신의 성과만 따지는 돌출형 동료로서 조직 내 하위집단 전체가 서로를 감시하고 대립하는 '대립분리형' 혹은 '대립분산형' 조직 문화로 변질되어, 팀원 모두가 심각한 인간관계 스트레스를 겪게 된다.\n\n돌출형 동료 A의 행동에 감정적으로 대응하기 전에, 조직 문화의 소통구조를 복기하여 '어디까지 진행되었는가'라는 객관적 사실을 먼저 확인하려는 이성적인 대처 방식이다.",
+            "돌출형 동료 A의 행동에 감정적으로 대응하기 전에, 조직 문화의 소통구조를 복기하여 '어디까지 진행되었는가'라는 객관적 사실을 먼저 확인하려는 이성적인 대처 방식이다.",
         },
       ],
     },
     secondRound: {
+      image: '/images/scenario2_r2a.jpg',
       description:
         '동료: "우선 여기가 수정이 되었고요, 클라이언트와는 이렇게 메일을 주고받았습니다."\n\n(속마음: \'생각보다 많이 진행이 되었네.. 방향이 좀 바뀌었잖아.. 이대로 가면 더 복잡해지겠어\')',
       choices: [
@@ -129,8 +131,8 @@ export const scenarios: Scenario[] = [
   },
   {
     title: 'Stage 3: 강압적인 회식 분위기',
-    image: '/images/scenario3.jpg',
     firstRound: {
+      image: '/images/scenario3.jpg',
       description:
         '팀 회식 자리. 팀장이 술을 강제로 권하려 한다. 하지만 나는 술을 마시면 바로 응급실에 실려갈 수도 있다.\n\n팀장: "자! 김사원! 오늘 첫 회식인데 원샷으로 시작해야지~ 신입이니까 당연한 거 알고 있지?"',
       choices: [
@@ -150,6 +152,7 @@ export const scenarios: Scenario[] = [
       ],
     },
     secondRound: {
+      image: '/images/scenario3_r2.jpg',
       description: '팀장: "에이 거짓말 하지 말고~ 그래도 딱 한 잔만 마셔~ 내가 주는 건데 거절할 거야??"',
       choices: [
         {
