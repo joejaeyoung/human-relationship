@@ -47,7 +47,8 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
 
   async function handleVote(choice: string, index: number) {
     if (voted) return
-    await supabase.from('votes').insert({ stage, round, choice })
+    const { error } = await supabase.from('votes').insert({ stage, round, choice })
+    if (error) { console.error('투표 저장 실패:', error); return }
     localStorage.setItem(votedKey, '1')
     setVoted(true)
     setVotedIndex(index)
@@ -66,7 +67,7 @@ export default function VotingView({ scenario, stage, round, firstChoiceWinner }
       <div className="space-y-3 mt-6">
         {choices.map((choice, i) => (
           <button
-            key={choice}
+            key={i}
             onClick={() => handleVote(choice, i)}
             disabled={voted}
             className={`w-full text-left p-4 rounded-lg border-2 transition-all font-medium text-base ${
