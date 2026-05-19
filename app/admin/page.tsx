@@ -39,15 +39,16 @@ export default function AdminPage() {
   async function resetAll() {
     if (!confirm('모든 투표 기록을 삭제하고 처음부터 시작할까요?')) return
     setLoading(true)
-    await supabase.from('votes').delete().gte('id', '0')
-    const { error } = await supabase.from('session_state').update({
+    const { error: votesError } = await supabase.from('votes').delete().gte('stage', 0)
+    if (votesError) alert(`투표 삭제 실패: ${votesError.message}`)
+    const { error: sessionError } = await supabase.from('session_state').update({
       current_stage: 0,
       phase: 'intro',
       round: 1,
       first_choice_winner: null,
       second_choice_winner: null,
     }).eq('id', 1)
-    if (error) alert(`초기화 실패: ${error.message}`)
+    if (sessionError) alert(`초기화 실패: ${sessionError.message}`)
     setLoading(false)
   }
 
