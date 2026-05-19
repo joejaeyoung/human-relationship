@@ -115,12 +115,6 @@ export default function AdminPage() {
   const scenario = scenarios[session.current_stage]
   const isLast = session.current_stage >= scenarios.length - 1
   const fcWinner = session.first_choice_winner
-  const hasSecondRound =
-    fcWinner !== null && scenario?.firstChoices[fcWinner]?.result.kind === 'second'
-  const immediateResult =
-    fcWinner !== null && scenario?.firstChoices[fcWinner]?.result.kind === 'immediate'
-      ? (scenario.firstChoices[fcWinner].result as { kind: 'immediate'; type: string; text: string })
-      : null
 
   return (
     <main className="min-h-screen bg-gray-100 p-8">
@@ -185,41 +179,14 @@ export default function AdminPage() {
             </button>
           )}
 
-          {session.phase === 'results' && session.round === 1 && (
-            <>
-              {immediateResult && (
-                <div className="p-4 bg-red-50 border border-red-300 rounded-xl text-red-800 text-sm whitespace-pre-line">
-                  <p className="font-bold mb-1">Bad End</p>
-                  {immediateResult.text}
-                </div>
-              )}
-              {hasSecondRound && (
-                <button
-                  onClick={() => updateSession({ phase: 'intro', round: 2 })}
-                  disabled={loading || phaseJustChanged}
-                  className="w-full bg-purple-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
-                >
-                  2차 선택지로 →
-                </button>
-              )}
-              {!immediateResult && !hasSecondRound && fcWinner !== null && (
-                <button
-                  onClick={() =>
-                    updateSession({
-                      current_stage: session.current_stage + 1,
-                      phase: 'intro',
-                      round: 1,
-                      first_choice_winner: null,
-                      second_choice_winner: null,
-                    })
-                  }
-                  disabled={loading || isLast || phaseJustChanged}
-                  className="w-full bg-gray-700 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
-                >
-                  {isLast ? '마지막 시나리오' : '다음 시나리오 →'}
-                </button>
-              )}
-            </>
+          {session.phase === 'results' && session.round === 1 && fcWinner !== null && (
+            <button
+              onClick={() => updateSession({ phase: 'intro', round: 2 })}
+              disabled={loading || phaseJustChanged}
+              className="w-full bg-purple-600 text-white py-4 rounded-xl text-lg font-bold disabled:opacity-50"
+            >
+              2차 선택지로 →
+            </button>
           )}
 
           {session.phase === 'results' && session.round === 2 && (

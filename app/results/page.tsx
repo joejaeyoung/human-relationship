@@ -28,7 +28,7 @@ export default function ResultsPage() {
     if (s.round === 1) return scenario.firstChoices.map((fc) => fc.text)
     if (s.first_choice_winner === null) return []
     const result = scenario.firstChoices[s.first_choice_winner].result
-    return result.kind === 'second' ? result.choices : []
+    return result.choices
   }
 
   useEffect(() => {
@@ -39,7 +39,11 @@ export default function ResultsPage() {
       .then(({ data }) => {
         if (data) {
           setSession(data)
-          fetchVotes(data.current_stage, getChoices(data))
+          if (data.phase !== 'intro') {
+            fetchVotes(data.current_stage, getChoices(data))
+          } else {
+            setVoteCounts([])
+          }
         }
       })
 
@@ -51,7 +55,11 @@ export default function ResultsPage() {
         (payload) => {
           const next = payload.new as SessionState
           setSession(next)
-          fetchVotes(next.current_stage, getChoices(next))
+          if (next.phase === 'intro') {
+            setVoteCounts([])
+          } else {
+            fetchVotes(next.current_stage, getChoices(next))
+          }
         }
       )
       .subscribe()
@@ -90,13 +98,9 @@ export default function ResultsPage() {
   const outcomeText = (() => {
     if (!session || !scenario || session.phase !== 'results') return null
     const { round, first_choice_winner: fcW, second_choice_winner: scW } = session
-    if (round === 1 && fcW !== null) {
-      const result = scenario.firstChoices[fcW].result
-      if (result.kind === 'immediate') return { type: result.type, text: result.text }
-    }
     if (round === 2 && fcW !== null && scW !== null) {
       const result = scenario.firstChoices[fcW].result
-      if (result.kind === 'second') return result.outcomes[scW]
+      return result.outcomes[scW] ?? null
     }
     return null
   })()
@@ -104,9 +108,8 @@ export default function ResultsPage() {
   const outcomeColors = {
     best: 'bg-green-50 border-green-400 text-green-900',
     normal: 'bg-yellow-50 border-yellow-400 text-yellow-900',
-    bad: 'bg-red-50 border-red-400 text-red-900',
   }
-  const outcomeLabels = { best: '✓ Best End', normal: '→ Normal End', bad: '✗ Bad End' }
+  const outcomeLabels = { best: '✓ Best End', normal: '→ Normal End' }
 
   return (
     <main className="min-h-screen bg-white p-8">
